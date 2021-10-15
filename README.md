@@ -2,7 +2,7 @@
 # pparallel-bench
 
 `pparallel-bench` is a command line program for parallelizing PostgreSQL's built-in `query` functionality for bulk measuring of performance data with [TimescaleDB.](//github.com/timescale/timescaledb/)
-Its main use is to measure performance of queries that run against a database. The mean idea is to have one main query and to provide a CSV of data for its execution.
+Its main use is to measure performance of queries that run against a database. The main idea is to have one main query and to provide a CSV of data for its execution and to collect metrics on the results.
 The Query as well as the data can be freely defined, but the first parameter of the query should be the column on which you want your results to be grouped at.
 
 NOTE:
@@ -77,12 +77,12 @@ For Linux:
 ```
 $ CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./bin/pparallel-bench ./cmd/pparallel-bench/main.go
 ```
-For Windows:
+For Windows (untested):
 ```
 $ CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./bin/pparallel-bench ./cmd/pparallel-bench/main.go
 ```
 
-## Installing into $GOPATH/bin 
+## Installing into $GOPATH/bin
 
 You can install the tool directly to your bin folder with:
 ```
@@ -169,7 +169,7 @@ Usage of timescaledb-parallel-copy:
         Number of parallel requests to make (default 1)
 ```
 
-## Result metrics 
+## Result metrics
 
 The unverbose metrics this tool measures are:
 
@@ -182,56 +182,66 @@ The unverbose metrics this tool measures are:
 
 ### Regular output with 200 Entries, 2 workers and a batchsize of 25 without verbose output
 
+Example:
+
+```
+$ ./bin/timescale-parallelquery  -db-name homework -table cpu_usage -skip-header -file data/faulty_query_params.csv -workers 2 -connection  $(DBCONNECTIONSTRING)  -batch-size 25 --query "SELECT time_bucket('1 minutes', ts) AS t, min(usage) AS min_cpu, max(usage) AS max_cpu,avg(usage) AS avg_cpu FROM  %s WHERE host = $1 AND ts > $2 AND ts < $3 GROUP BY t ORDER BY t DESC;"
+```
+
 ```
 ########################################
 Processing Complete
+2021-10-15 12:51:34.5185548 +0000 UTC m=+1.202699401
 ################
 Querystats:
-MinimumQueryTime: 4.1421ms
-MaximumQueryTime: 11.3781ms
-TotalQueryTime: 1.2689326s
-MeanQueryTime: 5.83 ms
-MedianQueryTime: 6 ms
+MinimumQueryTime: 8.6977ms
+MaximumQueryTime: 18.4664ms
+TotalQueryTime: 2.2428712s
+MeanQueryTime: 10.725 ms
+MedianQueryTime: 11 ms
 Queries: 200
 ########################################
-Querying  200 entries, took 706.2456ms with 2 worker(s) (mean rate 157.612784/sec)
+Querying  200 entries, took 1.2019485s with 2 worker(s) (mean rate 89.171416/sec)   
 ```
 
 ### Regular output with 200 Entries, 2 workers and a batchsize of 25 with verbose output
 
-command: 
+Example: 
 
-make docker-cron-run-verbose DBHOST=<YourIP> DBPORT=<YourPort> DBUSER=<YourUser> DBPW=<DBPORT>
+```
+$ ./bin/timescale-parallelquery  -db-name homework -table cpu_usage -skip-header -file data/faulty_query_params.csv -workers 2 -connection  $(DBCONNECTIONSTRING)  -batch-size 25 -verbose --query "SELECT time_bucket('1 minutes', ts) AS t, min(usage) AS min_cpu, max(usage) AS max_cpu,avg(usage) AS avg_cpu FROM  %s WHERE host = $1 AND ts > $2 AND ts < $3 GROUP BY t ORDER BY t DESC;"
 
-OR
-./bin/timescale-parallelquery  -db-name homework -table cpu_usage -skip-header -file data/faulty_query_params.csv -workers $(WORKERS) -connection  $(DBCONNECTIONSTRING)  -batch-size $(BATCHSIZE) -verbose 
+```
 
 ```
 Skipping the first 1 lines of the input.
-[BATCH] took 221.9052ms, batch size 25, row rate 112.660722/sec
-[BATCH] took 235.6608ms, batch size 25, row rate 106.084678/sec
-[BATCH] took 217.6501ms, batch size 25, row rate 114.863260/sec
-[BATCH] took 203.8431ms, batch size 25, row rate 122.643347/sec
-[BATCH] took 155.2121ms, batch size 25, row rate 161.069917/sec
-[BATCH] took 167.8463ms, batch size 25, row rate 148.945791/sec
-[BATCH] took 159.0662ms, batch size 25, row rate 157.167267/sec
-[BATCH] took 157.3773ms, batch size 25, row rate 158.853913/sec
+[BATCH] took 308.2699ms, batch size 25, row rate 81.097765/sec
+[BATCH] took 309.3971ms, batch size 25, row rate 80.802309/sec
+[BATCH] took 281.4304ms, batch size 25, row rate 88.831910/sec
+[BATCH] took 281.1626ms, batch size 25, row rate 88.916520/sec
+[BATCH] took 257.2092ms, batch size 25, row rate 97.197145/sec
+[BATCH] took 268.5397ms, batch size 25, row rate 93.096105/sec
+[BATCH] took 256.9481ms, batch size 25, row rate 97.295913/sec
+[BATCH] took 260.5247ms, batch size 25, row rate 95.960191/sec
 ########################################
 Processing Complete
+2021-10-15 12:52:42.3156183 +0000 UTC m=+1.136168001
 ################
 Processingstats:
-Time spent scanning the input: 460.3905ms
-Time spent reading the responses: 669.8µs
+Time spent scanning the input: 605.5154ms
+Time spent reading the responses: 219.7µs
 ################
 Querystats:
-MinimumQueryTime: 4.0404ms
-MaximumQueryTime: 19.7758ms
-TotalQueryTime: 1.38782s
-MeanQueryTime: 6.44 ms
-MedianQueryTime: 6 ms
+MinimumQueryTime: 8.5291ms
+MaximumQueryTime: 18.0183ms
+TotalQueryTime: 2.1009662s
+MeanQueryTime: 9.99 ms
+MedianQueryTime: 10 ms
 Queries: 200
+Result Rows received: 12163
+Avg results per query: 60.815
 ########################################
-Querying  200 entries, took 786.2167ms with 2 worker(s) (mean rate 144.110908/sec)   
+Querying  200 entries, took 1.1349651s with 2 worker(s) (mean rate 95.194297/sec)
 ```
 
 ### Problematic output with 200 Entries, 2 workers and a batchsize of 25 with verbose output
@@ -240,24 +250,24 @@ Behaviour: When content with errors is provided, the tool will show those in the
 
 ```
 Skipping the first 1 lines of the input.
-[BATCH] took 156.1017ms, batch size 25, row rate 160.152003/sec
-[BATCH] took 159.4769ms, batch size 25, row rate 156.762515/sec
+[BATCH] took 272.8114ms, batch size 25, row rate 91.638399/sec
+[BATCH] took 283.7918ms, batch size 25, row rate 88.092750/sec
 Unable to execute query sql: expected 3 arguments, got 2
 for Query "SELECT time_bucket('1 minutes', ts) AS t, min(usage) AS min_cpu, max(usage) AS max_cpu,avg(usage) AS avg_cpu FROM  "public"."cpu_usage" WHERE host = $1 AND ts > $2 AND ts < $3 GROUP BY t ORDER BY t DESC;"
 with parameter [host_000006 ]
 Unable to execute query pq: invalid input syntax for type timestamp with time zone: "2017-01-01 23:as:52"
 for Query "SELECT time_bucket('1 minutes', ts) AS t, min(usage) AS min_cpu, max(usage) AS max_cpu,avg(usage) AS avg_cpu FROM  "public"."cpu_usage" WHERE host = $1 AND ts > $2 AND ts < $3 GROUP BY t ORDER BY t DESC;"
 with parameter [host_000003 2017-01-01 22:05:52 2017-01-01 23:as:52]
-[BATCH] took 253.0613ms, batch size 25, row rate 98.790293/sec
-[BATCH] took 265.2057ms, batch size 25, row rate 94.266451/sec
+[BATCH] took 239.2407ms, batch size 25, row rate 104.497270/sec
+[BATCH] took 252.8844ms, batch size 25, row rate 98.859400/sec
 Unable to execute query pq: invalid input syntax for type timestamp with time zone: "2017-01-01 17:05:x"
 for Query "SELECT time_bucket('1 minutes', ts) AS t, min(usage) AS min_cpu, max(usage) AS max_cpu,avg(usage) AS avg_cpu FROM  "public"."cpu_usage" WHERE host = $1 AND ts > $2 AND ts < $3 GROUP BY t ORDER BY t DESC;"
 with parameter [host_000001 2017-01-01 17:05:x 2017-01-01 18:05:12]
 Unable to execute query pq: invalid input syntax for type timestamp with time zone: "2017-01-a 14:29:53"
 for Query "SELECT time_bucket('1 minutes', ts) AS t, min(usage) AS min_cpu, max(usage) AS max_cpu,avg(usage) AS avg_cpu FROM  "public"."cpu_usage" WHERE host = $1 AND ts > $2 AND ts < $3 GROUP BY t ORDER BY t DESC;"
 with parameter [host_000002 2017-01-02 13:29:53 2017-01-a 14:29:53]
-[BATCH] took 225.5779ms, batch size 25, row rate 110.826460/sec
-[BATCH] took 225.909ms, batch size 25, row rate 110.664028/sec
+[BATCH] took 255.2225ms, batch size 25, row rate 97.953746/sec
+[BATCH] took 254.363ms, batch size 25, row rate 98.284735/sec
 Unable to execute query pq: invalid input syntax for type timestamp with time zone: "2017-a-02 09:13:47"
 for Query "SELECT time_bucket('1 minutes', ts) AS t, min(usage) AS min_cpu, max(usage) AS max_cpu,avg(usage) AS avg_cpu FROM  "public"."cpu_usage" WHERE host = $1 AND ts > $2 AND ts < $3 GROUP BY t ORDER BY t DESC;"
 with parameter [host_000001 2017-01-02 08:13:47 2017-a-02 09:13:47]
@@ -270,27 +280,31 @@ with parameter [host_000005 2017-01-01 a:40:32 2017-01-01 12:40:32]
 Unable to execute query pq: invalid input syntax for type timestamp with time zone: "a-01-02 19:21:03"
 for Query "SELECT time_bucket('1 minutes', ts) AS t, min(usage) AS min_cpu, max(usage) AS max_cpu,avg(usage) AS avg_cpu FROM  "public"."cpu_usage" WHERE host = $1 AND ts > $2 AND ts < $3 GROUP BY t ORDER BY t DESC;"
 with parameter [host_000002 2017-01-02 18:21:03 a-01-02 19:21:03]
-[BATCH] took 186.4929ms, batch size 25, row rate 134.053361/sec
-[BATCH] took 271.043ms, batch size 25, row rate 92.236287/sec
+[BATCH] took 288.4073ms, batch size 25, row rate 86.682965/sec
+[BATCH] took 450.528ms, batch size 25, row rate 55.490447/sec
 ########################################
 Processing Complete
+2021-10-15 12:53:54.2585477 +0000 UTC m=+1.251625401
 ################
 Processingstats:
-Time spent scanning the input: 436.7902ms
-Time spent reading the responses: 528.2µs
+Time spent scanning the input: 545.5381ms
+Time spent reading the responses: 169.3µs
 ################
 Querystats:
-MinimumQueryTime: 3.7385ms
-MaximumQueryTime: 19.3715ms
-TotalQueryTime: 1.5025836s
-MeanQueryTime: 7.354166666666667 ms
-MedianQueryTime: 7 ms
+MinimumQueryTime: 8.3168ms
+MaximumQueryTime: 191.1425ms
+TotalQueryTime: 2.1468537s
+MeanQueryTime: 10.651041666666666 ms
+MedianQueryTime: 10 ms
 Queries: 192
+Result Rows received: 13354
+Avg results per query: 69.55208333333333
 ########################################
-Querying  200 entries, took 934.3796ms with 2 worker(s) (mean rate 133.104075/sec)
+Querying  200 entries, took 1.2507416s with 2 worker(s) (mean rate 93.159585/sec)
 ########################################
             WARNING!
 ########################################
+Faulty Queries: 8 
 There has been more input found than queries executed,
 please consult the Log for Errors!!
 ########################################
@@ -304,5 +318,3 @@ This tool also provides the possibility to save all results in a json file for r
 $ .... -toJson ./resultdata.json
 ```
 
-### Contributing
-We welcome contributions to this utility, which like TimescaleDB is released under the Apache2 Open Source License.  The same [Contributors Agreement](//github.com/timescale/timescaledb/blob/master/CONTRIBUTING.md) applies; please sign the [Contributor License Agreement](https://cla-assistant.io/timescale/timescaledb-parallel-copy) (CLA) if you're a new contributor.
