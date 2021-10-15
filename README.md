@@ -8,6 +8,24 @@ The Query as well as the data can be freely defined, but the first parameter of 
 NOTE:
 This Project is inspired by <https://github.com/timescale/timescaledb-parallel-copy> and this project also uses its intnal DB module
 
+- [pparallel-bench](#pparallel-bench)
+  * [Getting started](#getting-started)
+  * [Defining the CSV file](#defining-the-csv-file)
+  * [Defining your Query](#defining-your-query)
+      - [Extra Make does not like $](#extra-make-does-not-like--)
+  * [Defining workers](#defining-workers)
+  * [Defining batches](#defining-batches)
+  * [Defining the connection](#defining-the-connection)
+  * [Building pparallel-bench](#building-pparallel-bench)
+  * [Installing into $GOPATH/bin](#installing-into--gopath-bin)
+    + [Using pparallel-bench](#using-pparallel-bench)
+  * [Result metrics](#result-metrics)
+    + [Regular output with 200 Entries, 2 workers and a batchsize of 25 without verbose output](#regular-output-with-200-entries--2-workers-and-a-batchsize-of-25-without-verbose-output)
+    + [Regular output with 200 Entries, 2 workers and a batchsize of 25 with verbose output](#regular-output-with-200-entries--2-workers-and-a-batchsize-of-25-with-verbose-output)
+    + [Problematic output with 200 Entries, 2 workers and a batchsize of 25 with verbose output](#problematic-output-with-200-entries--2-workers-and-a-batchsize-of-25-with-verbose-output)
+    + [Retrieving Results](#retrieving-results)
+
+
 ## Getting started
 
 Before using this program to bulk query data, your database should be installed with the TimescaleDB extension and the target table should already be made a hypertable.
