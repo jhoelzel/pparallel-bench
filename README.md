@@ -51,6 +51,10 @@ Example:
 --query "SELECT time_bucket('1 minutes', ts) AS t, min(usage) AS min_cpu, max(usage) AS max_cpu,avg(usage) AS avg_cpu FROM  public.cpu_usage WHERE host = $1 AND ts > $2 AND ts < $3 GROUP BY t ORDER BY t DESC;"
 ```
 
+#### Extra Make does not like $
+
+Therefore i provided an option to input all the params like "csvVar1" "csvVar2" which in turn get replace in runtime by $ which then can be used by the prepared statements
+
 ## Defining workers
 
 In oder to use the power of go to query your server in parralel, this tool uses the --worker flag to define the number of concurrent workers that should query the server.
