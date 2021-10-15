@@ -171,7 +171,8 @@ Usage of timescaledb-parallel-copy:
 
 ## Result metrics 
 
-The unverbose metrics are:
+The unverbose metrics this tool measures are:
+
 - #of queries processed
 - total processing time across all queries
 - the minimum query time (for a single query)
@@ -293,6 +294,14 @@ Querying  200 entries, took 934.3796ms with 2 worker(s) (mean rate 133.104075/se
 There has been more input found than queries executed,
 please consult the Log for Errors!!
 ########################################
+```
+
+### Retrieving Results
+
+This tool also provides the possibility to save all results in a json file for reference. In ord to use this please utilize the --toJson flag with a file path of your chosing.
+
+```
+$ .... -toJson ./resultdata.json
 ```
 
 ### Contributing
