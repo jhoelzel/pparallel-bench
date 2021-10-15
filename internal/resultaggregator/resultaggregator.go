@@ -40,6 +40,10 @@ type QueryResults struct {
 func NewQueryResult(fullTableName string, queryCMD string) QueryResults {
 	queryResult := QueryResults{}
 	queryResult.TableName = fullTableName
+	//our makefile did not like that we use dollars for replacement so we need to get them back
+	if strings.Contains(queryCMD, "csvVar") {
+		queryCMD = strings.Replace(queryCMD, "csvVar", "$", 0)
+	}
 	//if no %s is given in the query we can assume that we do not need to replace the tablename in the query
 	if strings.Contains(queryCMD, "%s") {
 		queryResult.QueryCmd = fmt.Sprintf(queryCMD, fullTableName)
