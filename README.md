@@ -180,6 +180,20 @@ The unverbose metrics this tool measures are:
 - the average query time
 - and the maximum query time
 
+The verbose metrics this tool additionally measures are:
+
+Processingstats:
+
+- time spent per batch executed
+- Time spent scanning the input
+- Time spent reading the responses
+
+Queries:
+
+- #of results received
+- avg results per query
+
+
 ### Regular output with 200 Entries, 2 workers and a batchsize of 25 without verbose output
 
 Example:
@@ -313,6 +327,8 @@ please consult the Log for Errors!!
 ### Retrieving Results
 
 This tool also provides the possibility to save all results in a json file for reference. In ord to use this please utilize the --toJson flag with a file path of your chosing.
+
+NOTE: As mentioned earlier, all results are grouped by the first parameter in your inputcsv. this ideally should be the first parameter in your where clause. This enables for instance that you could query for multiple hostnames in your datbase and later summarize them for a more detailed analysis.
 
 ```
 $ .... -toJson ./resultdata.json
